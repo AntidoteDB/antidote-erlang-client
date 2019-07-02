@@ -164,7 +164,7 @@ read_values(Pid, Objects, {static, TxId}) ->
         {error, timeout} -> {error, timeout};
         _ ->
             case antidote_pb_codec:decode_response(Result) of
-                {static_read_objects_resp, Values, CommitTimeStamp} ->
+                {static_read_objects_resp, {ok, Values, CommitTimeStamp}} ->
                     antidotec_pb_socket:store_commit_time(Pid, CommitTimeStamp),
                     {ok, Values};
                 {error, Reason} -> {error, Reason}

@@ -126,8 +126,7 @@ handle_call(stop, _From, State) ->
 %% @private
 %% @todo handle timeout
 handle_info({_Proto, Sock, Data}, State=#state{active = (Active = #request{})}) ->
-    <<MsgCode:8, MsgData/binary>> = Data,
-    Response = antidote_pb_codec:decode_msg(MsgCode, MsgData),
+    Response = antidote_pb_codec:decode_response(Data),
     cancel_req_timer(Active#request.tref),
     _ = send_caller(Response, Active),
     NewState = State#state{active = undefined},
