@@ -30,10 +30,8 @@
 -type address() :: string() | atom() | inet:ip_address().
 %% The TCP port number of the Riak node's Protocol Buffers interface
 -type portnum() :: non_neg_integer().
--type msg_id() :: non_neg_integer().
--type rpb_req() :: {tunneled, msg_id(), binary()} | atom() | tuple().
 
--record(request, {ref :: reference(), msg :: rpb_req(), from, timeout :: timeout(),
+-record(request, {ref :: reference(), from, timeout :: timeout(),
                   tref :: reference() | undefined }).
 
 -record(state, {
@@ -112,10 +110,9 @@ get_last_commit_time(Pid) ->
 %% @private
 handle_call({req, Msg, Timeout}, From, State) ->
     Ref = make_ref(),
-    Req = #request{ref = Ref, msg = Msg, from = From, timeout = Timeout,
+    Req = #request{ref = Ref, from = From, timeout = Timeout,
              tref = create_req_timer(Timeout, Ref)},
-    Pkt = antidote_pb_codec:encode_msg(Msg),
-    NewState = case gen_tcp:send(State#state.sock, Pkt) of
+    NewState = case gen_tcp:send(State#state.sock, Msg) of
         ok ->
             maybe_reply({noreply,  State#state{active = Req}});
         {error, Reason} ->
