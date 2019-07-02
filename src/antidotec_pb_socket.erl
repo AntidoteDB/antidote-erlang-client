@@ -111,7 +111,18 @@ get_last_commit_time(Pid) ->
 
 %% @private
 handle_call({req, Msg, Timeout}, From, State) ->
-    {noreply, send_request(new_request(Msg, From, Timeout), State)};
+    Ref = make_ref(),
+    Req = #request{ref = Ref, msg = Msg, from = From, timeout = Timeout,
+             tref = create_req_timer(Timeout, Ref)},
+    Pkt = antidote_pb_codec:encode_msg(Msg),
+    NewState = case gen_tcp:send(State#state.sock, Pkt) of
+        ok ->
+            maybe_reply({noreply,  State#state{active = Req}});
+        {error, Reason} ->
+            logger:warning("Socket error while sending request: ~p.", [Reason]),
+            gen_tcp:close(State#state.sock)
+    end,
+    {noreply, NewState};
 
 handle_call({store_commit_time, TimeStamp}, _From, State) ->
     {reply, ok, State#state{last_commit_time = TimeStamp}};
@@ -189,13 +200,6 @@ disconnect(State) ->
     NewState = State#state{sock = undefined, active = undefined},
     {stop, disconnected, NewState}.
 
-
-%% @private
-new_request(Msg, From, Timeout) ->
-    Ref = make_ref(),
-    #request{ref = Ref, msg = Msg, from = From, timeout = Timeout,
-             tref = create_req_timer(Timeout, Ref)}.
-
 %% @private
 %% Create a request timer if desired, otherwise return undefined.
 create_req_timer(infinity, _Ref) ->
@@ -205,22 +209,6 @@ create_req_timer(undefined, _Ref) ->
 create_req_timer(Msecs, Ref) ->
     erlang:send_after(Msecs, self(), {req_timeout, Ref}).
 
-%% Send a request to the server and prepare the state for the response
-%% @private
-send_request(Request0, State) when State#state.active =:= undefined  ->
-    {Request, Pkt} = encode_request_message(Request0),
-    case gen_tcp:send(State#state.sock, Pkt) of
-        ok ->
-            maybe_reply({noreply,  State#state{active = Request}});
-        {error, Reason} ->
-            logger:warning("Socket error while sending request: ~p.", [Reason]),
-            gen_tcp:close(State#state.sock)
-    end.
-
-%% Unencoded Request (the normal PB client path)
-encode_request_message(#request{msg=Msg}=Req) ->
-    EncMsg = antidote_pb_codec:encode_msg(Msg),
-    {Req, EncMsg}.
 
 %% maybe_reply({reply, Reply, State = #state{active = Request}}) ->
 %%   NewRequest = send_caller(Reply, Request),
