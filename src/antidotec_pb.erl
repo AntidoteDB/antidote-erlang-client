@@ -32,7 +32,7 @@
 
 -define(TIMEOUT, 10000).
 
--spec start_transaction(Pid::pid(), TimeStamp::binary())
+-spec start_transaction(Pid::pid(), TimeStamp::binary() | ignore)
         -> {ok, {interactive, term()} | {static, {term(), term()}}} | {error, term()}.
 start_transaction(Pid, TimeStamp) ->
     start_transaction(Pid, TimeStamp, []).
@@ -40,14 +40,14 @@ start_transaction(Pid, TimeStamp) ->
 -spec start_transaction(Pid::pid(), TimeStamp::binary() | ignore, TxnProperties::term())
         -> {ok, {interactive, binary()} | {static, {binary(), term()}}} | {error, term()}.
 start_transaction(Pid, TimeStamp, TxnProperties) ->
-    case is_static(TxnProperties) of
-        true ->
-            {ok, {static, {TimeStamp, TxnProperties}}};
-        false ->
-            EncTimestamp = case TimeStamp of
+    EncTimestamp = case TimeStamp of
                 ignore -> term_to_binary(ignore);
                 Binary -> Binary
             end,
+    case is_static(TxnProperties) of
+        true ->
+            {ok, {static, {EncTimestamp, TxnProperties}}};
+        false ->
             EncMsg = antidote_pb_codec:encode_request({start_transaction, EncTimestamp, TxnProperties}),
             Result = antidotec_pb_socket:call_infinity(Pid, {req, EncMsg, ?TIMEOUT}),
             case Result of
