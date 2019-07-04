@@ -1,4 +1,4 @@
 [{<<"antidote_pb_codec">>,
   {git,"https://github.com/AntidoteDB/antidote_pb_codec",
-       {ref,"f1fbc71b310451017e4d248945005c8b2434ada4"}},
+       {ref,"4455f72d3c276e04caceed86c7601a9d372b49ff"}},
   0}].
