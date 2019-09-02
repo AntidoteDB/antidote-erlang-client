@@ -15,6 +15,18 @@ If you are running a local instance of AntidoteDB, the default protocol buffers 
 
 Once you have acquired a `Pid` connection to an AntidoteDB node, you are ready to run transactions.
 
+## Management Interface
+
+For coordinating Antidote instances, you can use the following operations via the Erlang client:
+
+```erl
+Pid = antidotec_pb_socket:start_link("127.0.0.1", 8087).
+%%
+ok = antidotec_pb_management:create_dc(Pid, ["node1", "node2"]).
+{ok, Descriptor} = antidotec_pb_management:get_connection_descriptor(Pid).
+ok = antidotec_pb_management:connect_to_dcs(Pid, [Descriptor]).
+```
+
 ## Transactional Interface
 
 AntidoteDB has a simple transactional interface:

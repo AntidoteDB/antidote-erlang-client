@@ -38,7 +38,7 @@ create_dc(Pid, Nodes) ->
         {create_dc_response, Response} -> Response
     end.
 
--spec get_connection_descriptor(pid()) -> ok | {error, antidote_pb_codec:error_code()}.
+-spec get_connection_descriptor(pid()) -> {ok, binary()} | {error, antidote_pb_codec:error_code()}.
 get_connection_descriptor(Pid) ->
     EncMsg = antidote_pb_codec:encode_request(get_connection_descriptor),
     Result = antidotec_pb_socket:call_infinity(Pid, {req, EncMsg, ?TIMEOUT}),
