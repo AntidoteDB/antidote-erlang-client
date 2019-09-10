@@ -1,4 +1,6 @@
-[{<<"antidote_pb_codec">>,
-  {git,"https://github.com/AntidoteDB/antidote_pb_codec",
-       {ref,"41ec7fbbfec7d0f7e2986a7f60e7890f0264ccb6"}},
-  0}].
+{"1.1.0",
+[{<<"antidote_pb_codec">>,{pkg,<<"antidote_pb_codec">>,<<"0.1.2">>},0}]}.
+[
+{pkg_hash,[
+ {<<"antidote_pb_codec">>, <<"ECF51F08EE1FEE0D6E82D1B4AE68811A89660A3D65DB90694A84275683AEF106">>}]}
+].

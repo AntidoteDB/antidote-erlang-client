@@ -22,7 +22,7 @@ For coordinating Antidote instances, you can use the following operations via th
 ```erl
 Pid = antidotec_pb_socket:start_link("127.0.0.1", 8087).
 %%
-ok = antidotec_pb_management:create_dc(Pid, ["node1", "node2"]).
+ok = antidotec_pb_management:create_dc(Pid, [Node1, Node2]).
 {ok, Descriptor} = antidotec_pb_management:get_connection_descriptor(Pid).
 ok = antidotec_pb_management:connect_to_dcs(Pid, [Descriptor]).
 ```
@@ -42,7 +42,7 @@ A more elaborate version with examples can be found in the [AntidoteDB Documenta
 
 #### Starting a transaction
 
-This function starts a new transaction and returns a transaction identifier, to be used with further operations in the same transaction. Antidote transactions can be of 2 types: _interactive_ or _static_.
+The function `start_transaction(Pid, Timestamp) -> {ok, TxId} | {error, Reason}` starts a new transaction and returns a transaction identifier, to be used with further operations in the same transaction. Antidote transactions can be of 2 types: _interactive_ or _static_.
 
 **Static transactions** can be seen as one-shot transactions for executing a set of updates or a read operation. Static transactions do not have to be committed or closed and are mainly handled by the Antidote server.
 
