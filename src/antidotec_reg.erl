@@ -36,7 +36,8 @@
         ]).
 
 -record(antidote_reg, {
-            value
+            value,
+            new_value
          }).
 
 -export_type([antidote_reg/0]).
@@ -49,11 +50,11 @@
 
 -spec new() -> antidote_reg().
 new() ->
-    #antidote_reg{value=""}.
+    #antidote_reg{value="", new_value=undefined}.
 
 
 new(Value) ->
-    #antidote_reg{value=Value}.
+    #antidote_reg{value=Value, new_value=undefined}.
 
 -spec value(antidote_reg()) -> [term()].
 value(#antidote_reg{value=Value}) -> Value.
@@ -69,12 +70,14 @@ is_type(T) ->
 -spec type() -> reg.
 type() -> reg.
 
--spec to_ops(term(), term()) -> [].
-to_ops(_, _) ->
-    [].
+to_ops(_, #antidote_reg{new_value=undefined}) ->
+  [];
 
-assign(_, Value) ->
-    #antidote_reg{value=Value}.
+to_ops(BoundObject, #antidote_reg{new_value=NewValue}) ->
+    [{BoundObject, assign, NewValue}].
+
+assign(#antidote_reg{value=OldValue}, Value) ->
+    #antidote_reg{value=OldValue, new_value=Value}.
 
 
 %% ===================================================================
