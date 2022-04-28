@@ -50,7 +50,7 @@
 
 -spec new() -> antidote_reg().
 new() ->
-    #antidote_reg{value="", new_value=undefined}.
+    #antidote_reg{value=""}.
 
 
 new(Value) ->
