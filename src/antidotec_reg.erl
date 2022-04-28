@@ -76,8 +76,8 @@ to_ops(_, #antidote_reg{new_value=undefined}) ->
 to_ops(BoundObject, #antidote_reg{new_value=NewValue}) ->
     [{BoundObject, assign, NewValue}].
 
-assign(#antidote_reg{value=OldValue}, Value) ->
-    #antidote_reg{value=OldValue, new_value=Value}.
+assign(Reg, Value) ->
+    Reg#antidote_reg{new_value=Value}.
 
 
 %% ===================================================================
