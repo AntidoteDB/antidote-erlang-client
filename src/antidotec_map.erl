@@ -68,7 +68,13 @@ value(#antidote_map{values=Values}) ->
            end, Values).
 
 -spec dirty_value(antidote_map()) -> antidote_map().
-dirty_value(#antidote_map{new_values=NewValues}) -> NewValues.
+dirty_value(#antidote_map{values=Values, new_values=NewValues, removes=Removes}) ->
+  MergedMap = maps:merge(Values, NewValues),
+  MergedMapWithDrops = maps:without(Removes, MergedMap),
+  maps:map(fun({Key, Type}, Value) ->
+              Mod = antidotec_datatype:module_for_crdt_type(Type),
+               {{Key, Type}, Mod:dirty_value(Value)}
+           end, MergedMapWithDrops).
 
 -spec add_or_update(antidote_map(), any(), any()) -> antidote_map().
 add_or_update(#antidote_map{values=Values, new_values=NewValues} = Map, Key, Value) ->
