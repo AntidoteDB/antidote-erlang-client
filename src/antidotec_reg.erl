@@ -59,7 +59,8 @@ new(Value) ->
 -spec value(antidote_reg()) -> [term()].
 value(#antidote_reg{value=Value}) -> Value.
 
-dirty_value(#antidote_reg{value=Value}) -> Value.
+dirty_value(#antidote_reg{value=Value, new_value=undefined}) -> Value;
+dirty_value(#antidote_reg{new_value=NewValue}) -> NewValue.
 
 %% @doc Determines whether the passed term is a reg container.
 -spec is_type(term()) -> boolean().
