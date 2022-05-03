@@ -52,7 +52,7 @@
 new() ->
   #antidote_map{}.
 
--spec new(map()) -> antidote_map().
+-spec new(list()) -> antidote_map().
 new(Values) ->
   TranslatedValues = lists:map(fun({{Key, Type}, Value}) ->
               Mod = antidotec_datatype:module_for_crdt_type(Type),
@@ -60,14 +60,14 @@ new(Values) ->
             end, Values),
   #antidote_map{values=maps:from_list(TranslatedValues)}.
 
--spec value(antidote_map()) -> antidote_map().
+-spec value(antidote_map()) -> map().
 value(#antidote_map{values=Values}) ->
   maps:map(fun({Key, Type}, Value) ->
               Mod = antidotec_datatype:module_for_crdt_type(Type),
                {{Key, Type}, Mod:value(Value)}
            end, Values).
 
--spec dirty_value(antidote_map()) -> antidote_map().
+-spec dirty_value(antidote_map()) -> map().
 dirty_value(#antidote_map{values=Values, new_values=NewValues, removes=Removes}) ->
   MergedMap = maps:merge(Values, NewValues),
   MergedMapWithDrops = maps:without(Removes, MergedMap),
@@ -93,6 +93,7 @@ to_ops(BoundObject, #antidote_map{values=Values, new_values=NewValues, removes=R
   RemoveOps = lists:map(fun(K) -> {BoundObject, remove, K} end, Removes),
   lists:concat([AddOps, UpdateOps, RemoveOps]).
 
+-spec update_ops(any(), map()) -> list()
 update_ops(BoundObject, Map) ->
   List = maps:to_list(Map),
   lists:map(fun({{Key, Type}, Value}) ->
